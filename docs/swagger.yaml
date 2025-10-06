@@ -1,0 +1,226 @@
+definitions:
+  internal_handlers.SumCostResponse:
+    properties:
+      total:
+        type: integer
+    type: object
+  todo-service_internal_dto.CreateSubscriptionDTO:
+    properties:
+      end_date:
+        description: optional
+        example: 12-2025
+        type: string
+      price:
+        example: 400
+        type: integer
+      service_name:
+        example: Yandex Plus
+        type: string
+      start_date:
+        example: 07-2025
+        type: string
+      user_id:
+        example: 60601fee-2bf1-4721-ae6f-7636e79a0cba
+        type: string
+    type: object
+  todo-service_internal_dto.CreateSubscriptionResponse:
+    properties:
+      id:
+        example: 1
+        type: integer
+    type: object
+  todo-service_internal_dto.UpdateSubscriptionDTO:
+    properties:
+      end_date:
+        example: 12-2025
+        type: string
+      price:
+        example: 500
+        type: integer
+      service_name:
+        example: Netflix
+        type: string
+      start_date:
+        example: 08-2025
+        type: string
+      user_id:
+        example: 60601fee-2bf1-4721-ae6f-7636e79a0cba
+        type: string
+    type: object
+  todo-service_pkg_domain.Subscription:
+    properties:
+      createdAt:
+        type: string
+      endDate:
+        description: nil = бессрочно
+        type: string
+      id:
+        type: integer
+      price:
+        description: целые рубли
+        type: integer
+      serviceName:
+        type: string
+      startDate:
+        description: первый день месяца
+        type: string
+      updatedAt:
+        type: string
+      userID:
+        description: UUID в виде строки
+        type: string
+    type: object
+info:
+  contact: {}
+paths:
+  /api/subscriptions:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/todo-service_pkg_domain.Subscription'
+            type: array
+      summary: List subscriptions
+      tags:
+      - subscriptions
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Subscription
+        in: body
+        name: subscription
+        required: true
+        schema:
+          $ref: '#/definitions/todo-service_internal_dto.CreateSubscriptionDTO'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/todo-service_internal_dto.CreateSubscriptionResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Create subscription
+      tags:
+      - subscriptions
+  /api/subscriptions/{id}:
+    delete:
+      parameters:
+      - description: subscription id
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Delete subscription
+      tags:
+      - subscriptions
+    get:
+      parameters:
+      - description: subscription id
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/todo-service_pkg_domain.Subscription'
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get subscription by id
+      tags:
+      - subscriptions
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: subscription id
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Subscription update
+        in: body
+        name: subscription
+        required: true
+        schema:
+          $ref: '#/definitions/todo-service_internal_dto.UpdateSubscriptionDTO'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Update subscription
+      tags:
+      - subscriptions
+  /api/subscriptions/sum:
+    get:
+      parameters:
+      - description: from month
+        example: 2025-07 or 07-2025
+        in: query
+        name: from
+        required: true
+        type: string
+      - description: to month
+        example: 2025-09
+        in: query
+        name: to
+        required: true
+        type: string
+      - description: user id (uuid)
+        in: query
+        name: user_id
+        type: string
+      - description: service name
+        in: query
+        name: service_name
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_handlers.SumCostResponse'
+      summary: Sum subscriptions cost for period
+      tags:
+      - subscriptions
+swagger: "2.0"
